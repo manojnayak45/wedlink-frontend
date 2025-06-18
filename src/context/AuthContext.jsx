@@ -6,15 +6,20 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loading, setLoading] = useState(true); // Prevent flicker on first load
+  const [loading, setLoading] = useState(true); // Prevent flicker on refresh
 
   // ✅ Called on first load to refresh token (if refreshToken exists in cookies)
   useEffect(() => {
     const verifyAndRefreshToken = async () => {
       try {
-        const res = await axios.get("/auth/refresh"); // ✅ use GET instead of POST
-        if (res.data?.accessToken) {
-          localStorage.setItem("accessToken", res.data.accessToken);
+        const res = await axios.post(
+          "/auth/refresh",
+          {},
+          { withCredentials: true }
+        ); // ✅ Use POST & send credentials
+        const accessToken = res.data?.accessToken;
+        if (accessToken) {
+          localStorage.setItem("accessToken", accessToken);
           setIsLoggedIn(true);
         } else {
           throw new Error("No accessToken received");
@@ -33,15 +38,16 @@ export const AuthProvider = ({ children }) => {
 
   // ✅ Login: store token & update state
   const login = (accessToken) => {
-    if (!accessToken) return;
-    localStorage.setItem("accessToken", accessToken);
-    setIsLoggedIn(true);
+    if (accessToken) {
+      localStorage.setItem("accessToken", accessToken);
+      setIsLoggedIn(true);
+    }
   };
 
   // ✅ Logout: clear cookies and state
   const logout = async () => {
     try {
-      await axios.post("/auth/logout");
+      await axios.post("/auth/logout", {}, { withCredentials: true });
     } catch (err) {
       console.error("Logout failed:", err.message);
     } finally {
