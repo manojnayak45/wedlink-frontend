@@ -31,7 +31,7 @@ const Login = () => {
       });
 
       // ✅ Use context login so `isLoggedIn` becomes true
-      login(res.data.token);
+      login(res.data.accessToken);
 
       // ✅ Navigate to dashboard
       navigate("/dashboard");
