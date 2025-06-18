@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: "http://localhost:8000/api",
+  baseURL: "https://wedlink-backend.onrender.com/api", // ✅ Updated backend URL
   withCredentials: true,
 });
 
@@ -13,7 +13,7 @@ instance.interceptors.request.use(async (config) => {
   return config;
 });
 
-// Auto-refresh token on 401 error
+// ✅ Auto-refresh token on 401
 instance.interceptors.response.use(
   (res) => res,
   async (err) => {
