@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ensure Ant Design Popconfirm buttons render correctly with Tailwind */
+.ant-popover .ant-popover-inner {
+  padding: 12px 16px !important;
+}
+
+.ant-popconfirm-buttons {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+}
+
+.ant-popconfirm-buttons .ant-btn {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  height: auto;
+}
