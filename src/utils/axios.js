@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: "https://wedlink-backend.onrender.com/api", // ✅ Updated backend URL
+  baseURL: import.meta.env.VITE_BACKEND_URL,
   withCredentials: true,
 });
 

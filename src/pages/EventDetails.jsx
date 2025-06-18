@@ -12,6 +12,7 @@ import {
   message,
   Dropdown,
   Space,
+  Upload,
 } from "antd";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -25,6 +26,8 @@ export default function EventDetails() {
   const [isGuestModalOpen, setGuestModalOpen] = useState(false);
   const [isEditMode, setEditMode] = useState(false);
   const [editGuestId, setEditGuestId] = useState(null);
+  const [isBulkModalOpen, setBulkModalOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   // ✅ Fetch Event and Guest List
   const fetchData = async () => {
@@ -192,14 +195,23 @@ export default function EventDetails() {
       </Descriptions>
 
       {/* ✅ Guest Section */}
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
         <h3 className="text-lg font-bold">Guest List</h3>
-        <button
-          onClick={() => setGuestModalOpen(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-        >
-          Add Guest
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setGuestModalOpen(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          >
+            Add Guest
+          </button>
+          <button
+            onClick={() => setBulkModalOpen(true)}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+          >
+            Bulk Guest Entry
+          </button>
+        </div>
       </div>
 
       {/* ✅ Table */}
@@ -250,6 +262,70 @@ export default function EventDetails() {
               value={formik.values.email}
               onChange={formik.handleChange}
             />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        title="Bulk Guest Entry (Upload Excel)"
+        open={isBulkModalOpen}
+        onCancel={() => setBulkModalOpen(false)}
+        footer={null}
+      >
+        <Form
+          layout="vertical"
+          onFinish={async (values) => {
+            const file = values.file?.[0]?.originFileObj;
+
+            if (!file) {
+              message.error("Please upload a valid Excel file.");
+              return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+              setUploading(true);
+              await axios.post(`/guests/bulk/${id}`, formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+              });
+              message.success("Guests uploaded successfully");
+              setBulkModalOpen(false);
+              fetchData(); // Refresh table
+            } catch (err) {
+              console.error("Bulk upload error:", err);
+              message.error("Failed to upload guests");
+            } finally {
+              setUploading(false);
+            }
+          }}
+        >
+          <Form.Item
+            label="Upload Excel File (.xlsx)"
+            name="file"
+            valuePropName="fileList"
+            getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
+            rules={[{ required: true, message: "Please upload an Excel file" }]}
+          >
+            <Upload
+              accept=".xlsx,.xls"
+              beforeUpload={() => false} // prevents auto-upload
+              maxCount={1}
+            >
+              <Button>Select File</Button>
+            </Upload>
+          </Form.Item>
+
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={uploading}
+              className="w-full"
+            >
+              Upload Guests
+            </Button>
           </Form.Item>
         </Form>
       </Modal>
