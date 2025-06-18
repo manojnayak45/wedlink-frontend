@@ -62,10 +62,10 @@ export default function EventDetails() {
     onSubmit: async (values) => {
       try {
         if (isEditMode) {
-          await axios.put(`/guests/${editGuestId}`, values);
+          await axios.put(`/guests/${editGuestId}`, values); // ✅ this is okay
           message.success("Guest updated successfully");
         } else {
-          await axios.post(`/guests/${id}`, values);
+          await axios.post(`/guests/event/${id}`, values); // ✅ FIX HERE
           message.success("Guest added successfully");
         }
         fetchData();
