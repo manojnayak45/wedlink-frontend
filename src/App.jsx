@@ -15,14 +15,19 @@ import AdminPanel from "./pages/AdminPanel";
 import EditEvent from "./pages/EditEvent";
 import EventDetails from "./pages/EventDetails";
 
+// 🛡️ Wrapper for checking auth before rendering nested routes
 function ProtectedLayout() {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, loading } = useAuth();
+
+  if (loading) {
+    return <div className="text-center p-6">Checking authentication...</div>;
+  }
 
   if (!isLoggedIn) {
     return <Navigate to="/login" />;
   }
 
-  return <Layout />;
+  return <Outlet />;
 }
 
 function App() {
@@ -38,12 +43,14 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
-        {/* Protected Routes */}
+        {/* 🔐 Protected routes with layout */}
         <Route element={<ProtectedLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/admin-panel" element={<AdminPanel />} />
-          <Route path="/events/edit/:id" element={<EditEvent />} />
-          <Route path="/events/:id" element={<EventDetails />} />
+          <Route element={<Layout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/admin-panel" element={<AdminPanel />} />
+            <Route path="/events/edit/:id" element={<EditEvent />} />
+            <Route path="/events/:id" element={<EventDetails />} />
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>
