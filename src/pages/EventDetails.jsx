@@ -33,8 +33,8 @@ export default function EventDetails() {
   const fetchData = async () => {
     try {
       const [eventRes, guestsRes] = await Promise.all([
-        axios.get(`/events/${id}`),
-        axios.get(`/guests/${id}`),
+        axios.get(`/events/${id}`), // Correct
+        axios.get(`/guests/event/${id}`), // ✅ Fix here
       ]);
       setEvent(eventRes.data);
       setGuests(guestsRes.data);
