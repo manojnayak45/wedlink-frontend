@@ -6,17 +6,17 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loading, setLoading] = useState(true); // Prevent flicker on refresh
+  const [loading, setLoading] = useState(true); // Prevent flicker on page refresh
 
-  // ✅ Called on first load to refresh token (if refreshToken exists in cookies)
+  // 🔄 Refresh token on first app load (e.g. after page reload)
   useEffect(() => {
     const verifyAndRefreshToken = async () => {
       try {
         const res = await axios.post(
           "/auth/refresh",
           {},
-          { withCredentials: true }
-        ); // ✅ Use POST & send credentials
+          { withCredentials: true } // Important to send cookies!
+        );
         const accessToken = res.data?.accessToken;
         if (accessToken) {
           localStorage.setItem("accessToken", accessToken);
@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
           throw new Error("No accessToken received");
         }
       } catch (err) {
-        console.error("Token refresh failed:", err.message);
+        console.error("❌ Token refresh failed:", err.message);
         localStorage.removeItem("accessToken");
         setIsLoggedIn(false);
       } finally {
@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
     verifyAndRefreshToken();
   }, []);
 
-  // ✅ Login: store token & update state
+  // 🔐 Login: set token and login state
   const login = (accessToken) => {
     if (accessToken) {
       localStorage.setItem("accessToken", accessToken);
@@ -44,12 +44,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ✅ Logout: clear cookies and state
+  // 🚪 Logout: call backend + clear local state
   const logout = async () => {
     try {
       await axios.post("/auth/logout", {}, { withCredentials: true });
     } catch (err) {
-      console.error("Logout failed:", err.message);
+      console.error("❌ Logout failed:", err.message);
     } finally {
       localStorage.removeItem("accessToken");
       setIsLoggedIn(false);
