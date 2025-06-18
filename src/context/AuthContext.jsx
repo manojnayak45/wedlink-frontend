@@ -57,9 +57,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout, loading }}>
-      {!loading && children}
-    </AuthContext.Provider>
+ 
+  <AuthContext.Provider value={{ isLoggedIn, login, logout, loading }}>
+    {children} {/* Always show children, handle redirect in route */}
+  </AuthContext.Provider>
+);
+
   );
 };
 
