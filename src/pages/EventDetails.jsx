@@ -184,9 +184,10 @@ export default function EventDetails() {
         Back to Dashboard
       </button>
 
-      <h2 className="text-xl sm:text-2xl font-semibold mb-4">Event Details</h2>
+      <h2 className="text-xl sm:text-2xl font-semibold mb-4 mt-8">
+        Event Details
+      </h2>
 
-      {/* ✅ Event Info */}
       {/* ✅ Event Info */}
       <Descriptions bordered column={1} size="middle" className="mb-6">
         <Descriptions.Item label="Event Name">{event.name}</Descriptions.Item>
