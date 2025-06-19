@@ -16,6 +16,7 @@ import {
 } from "antd";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { useNavigate } from "react-router-dom";
 
 import { MoreOutlined } from "@ant-design/icons";
 
@@ -28,6 +29,7 @@ export default function EventDetails() {
   const [editGuestId, setEditGuestId] = useState(null);
   const [isBulkModalOpen, setBulkModalOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const navigate = useNavigate();
 
   // ✅ Fetch Event and Guest List
   const fetchData = async () => {
@@ -172,6 +174,14 @@ export default function EventDetails() {
 
   return (
     <div className="p-4 sm:p-6">
+      {/* ✅ Back Button */}
+      <button
+        onClick={() => navigate("/dashboard")} // Update route as per your setup
+        className="mb-4 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded"
+      >
+        ← Back to Dashboard
+      </button>
+
       <h2 className="text-xl sm:text-2xl font-semibold mb-4">Event Details</h2>
 
       {/* ✅ Event Info */}
