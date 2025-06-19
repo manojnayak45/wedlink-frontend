@@ -13,6 +13,7 @@ import {
   Dropdown,
   Space,
   Upload,
+  ArrowLeftOutlined,
 } from "antd";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -176,10 +177,11 @@ export default function EventDetails() {
     <div className="p-4 sm:p-6">
       {/* ✅ Back Button */}
       <button
-        onClick={() => navigate("/dashboard")} // Update route as per your setup
-        className="mb-4 bg-green-600 hover:bg-green-700 transition text-whitepx-4 py-2 rounded"
+        onClick={() => navigate("/dashboard")}
+        className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition"
       >
-        ← Back to Dashboard
+        <ArrowLeftOutlined />
+        Back to Dashboard
       </button>
 
       <h2 className="text-xl sm:text-2xl font-semibold mb-4">Event Details</h2>
