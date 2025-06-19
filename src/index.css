@@ -7,6 +7,12 @@
   padding: 12px 16px !important;
 }
 
+.ant-btn-primary {
+  background-color: #1677ff !important;
+  color: #fff !important;
+  border: none !important;
+}
+
 .ant-popconfirm-buttons {
   display: flex !important;
   justify-content: flex-end !important;
