@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "../utils/axios";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 import {
   Button,
   Modal,
@@ -13,7 +14,6 @@ import {
   Dropdown,
   Space,
   Upload,
-  ArrowLeftOutlined,
 } from "antd";
 import { useFormik } from "formik";
 import * as Yup from "yup";
