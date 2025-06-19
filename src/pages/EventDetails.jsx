@@ -177,7 +177,7 @@ export default function EventDetails() {
       {/* ✅ Back Button */}
       <button
         onClick={() => navigate("/dashboard")} // Update route as per your setup
-        className="mb-4 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded"
+        className="mb-4 bg-green-600 hover:bg-green-700 transition text-whitepx-4 py-2 rounded"
       >
         ← Back to Dashboard
       </button>
