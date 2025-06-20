@@ -19,6 +19,7 @@ import React from "react";
 export default function Dashboard() {
   const [events, setEvents] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [eventNameExists, setEventNameExists] = useState(false);
   const navigate = useNavigate();
 
   const fetchEvents = async () => {
@@ -51,6 +52,11 @@ export default function Dashboard() {
       date: Yup.date().required("Date is required"),
     }),
     onSubmit: async (values) => {
+      if (eventNameExists) {
+        message.error("Event name already exists");
+        return;
+      }
+
       const payload = {
         name: values.title,
         groomName: values.groomName,
@@ -65,12 +71,35 @@ export default function Dashboard() {
         fetchEvents();
         setIsModalOpen(false);
         formik.resetForm();
+        setEventNameExists(false);
       } catch (err) {
-        console.error("❌ Error adding event:", err);
         message.error("Failed to add event");
       }
     },
   });
+
+  // ✅ Debounced event name check
+  useEffect(() => {
+    const name = formik.values.title.trim();
+    if (name.length < 3) {
+      setEventNameExists(false);
+      return;
+    }
+
+    const delay = setTimeout(async () => {
+      try {
+        const res = await axios.get(
+          `/events/check-name/${encodeURIComponent(name)}`
+        );
+        setEventNameExists(res.data.exists);
+      } catch (err) {
+        console.error("Event name check failed:", err);
+        setEventNameExists(false);
+      }
+    }, 500); // Delay to prevent rapid calls
+
+    return () => clearTimeout(delay);
+  }, [formik.values.title]);
 
   const handleDelete = async (id) => {
     try {
@@ -78,23 +107,19 @@ export default function Dashboard() {
       fetchEvents();
       message.success("Event deleted");
     } catch (err) {
-      console.error("❌ Error deleting event:", err);
       message.error("Failed to delete");
     }
   };
 
-  // Only include essential columns for small devices
   const columns = [
     {
       title: "No.",
       dataIndex: "si",
-      key: "si",
       render: (_, __, index) => index + 1,
     },
     {
       title: "Event Name",
       dataIndex: "name",
-      key: "name",
       render: (text, record) => (
         <Link to={`/events/${record._id}`} className="text-blue-600 underline">
           {text}
@@ -103,7 +128,6 @@ export default function Dashboard() {
     },
     {
       title: "Actions",
-      key: "actions",
       render: (_, record) => (
         <div className="flex flex-wrap gap-2">
           <Button
@@ -118,7 +142,6 @@ export default function Dashboard() {
             onConfirm={() => handleDelete(record._id)}
             okText="Yes"
             cancelText="No"
-            getPopupContainer={(triggerNode) => triggerNode.parentElement}
           >
             <Button type="primary" danger size="small">
               Delete
@@ -131,42 +154,49 @@ export default function Dashboard() {
 
   return (
     <div className="p-4 max-w-screen-lg mx-auto">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
-        <h1 className="text-lg font-bold text-gray-800">Your Events</h1>
+      <div className="flex flex-col sm:flex-row justify-between mb-4">
+        <h1 className="text-lg font-bold">Your Events</h1>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition w-full sm:w-auto"
+          className="bg-blue-600 text-white px-4 py-2 rounded"
         >
           Add Event
         </button>
       </div>
 
-      {/* ✅ Table - responsive without scrollbars */}
-      <div className="w-full">
-        <Table
-          columns={columns}
-          dataSource={events}
-          rowKey="_id"
-          pagination={{ pageSize: 5 }}
-          size="middle"
-          bordered
-        />
-      </div>
+      <Table
+        columns={columns}
+        dataSource={events}
+        rowKey="_id"
+        pagination={{ pageSize: 5 }}
+        size="middle"
+        bordered
+      />
 
-      {/* ✅ Modal */}
       <Modal
         title="Add Event"
         open={isModalOpen}
-        onCancel={() => setIsModalOpen(false)}
+        onCancel={() => {
+          setIsModalOpen(false);
+          formik.resetForm();
+          setEventNameExists(false);
+        }}
         onOk={formik.handleSubmit}
         okText="Add"
-        className="w-full"
       >
         <Form layout="vertical">
           <Form.Item
             label="Event Name"
-            validateStatus={formik.errors.title && "error"}
-            help={formik.errors.title}
+            validateStatus={
+              formik.errors.title || eventNameExists ? "error" : ""
+            }
+            help={
+              formik.errors.title
+                ? formik.errors.title
+                : eventNameExists
+                ? "This event name already exists"
+                : ""
+            }
           >
             <Input
               name="title"
@@ -174,6 +204,7 @@ export default function Dashboard() {
               onChange={formik.handleChange}
             />
           </Form.Item>
+
           <Form.Item
             label="Groom Name"
             validateStatus={formik.errors.groomName && "error"}
@@ -185,6 +216,7 @@ export default function Dashboard() {
               onChange={formik.handleChange}
             />
           </Form.Item>
+
           <Form.Item
             label="Bride Name"
             validateStatus={formik.errors.brideName && "error"}
@@ -196,6 +228,7 @@ export default function Dashboard() {
               onChange={formik.handleChange}
             />
           </Form.Item>
+
           <Form.Item
             label="Location"
             validateStatus={formik.errors.location && "error"}
@@ -207,6 +240,7 @@ export default function Dashboard() {
               onChange={formik.handleChange}
             />
           </Form.Item>
+
           <Form.Item
             label="Date"
             validateStatus={formik.errors.date && "error"}
@@ -214,11 +248,11 @@ export default function Dashboard() {
           >
             <DatePicker
               style={{ width: "100%" }}
-              name="date"
-              onChange={(date) => formik.setFieldValue("date", date)}
               value={formik.values.date ? dayjs(formik.values.date) : null}
+              onChange={(date) => formik.setFieldValue("date", date)}
             />
           </Form.Item>
+
           <Form.Item label="Description">
             <Input.TextArea
               name="description"
