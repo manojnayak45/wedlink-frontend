@@ -115,6 +115,11 @@ export default function EventDetails() {
   // ✅ Guest Table Columns
   const guestColumns = [
     {
+      title: "Guest ID",
+      dataIndex: "guestId",
+      key: "guestId",
+    },
+    {
       title: "Name",
       dataIndex: "name",
       key: "name",
