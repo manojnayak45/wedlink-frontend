@@ -140,12 +140,12 @@ export default function EventDetails() {
       key: "invitation",
       render: (guestId) => (
         <a
-          href={`http://localhost:5174/invitation/${guestId}`}
+          href={`https://wedlink-ui.vercel.app/invitation/${guestId}`}
           target="_blank"
           rel="noopener noreferrer"
           className="text-blue-600 underline"
         >
-          View
+          View Invitation
         </a>
       ),
     },
