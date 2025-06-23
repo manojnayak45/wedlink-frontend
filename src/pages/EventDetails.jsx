@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "../utils/axios";
-import { ArrowLeftOutlined } from "@ant-design/icons";
 import {
   Button,
   Modal,
@@ -17,9 +16,7 @@ import {
 } from "antd";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useNavigate } from "react-router-dom";
-
-import { MoreOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, MoreOutlined } from "@ant-design/icons";
 
 export default function EventDetails() {
   const { id } = useParams();
@@ -32,12 +29,11 @@ export default function EventDetails() {
   const [uploading, setUploading] = useState(false);
   const navigate = useNavigate();
 
-  // ✅ Fetch Event and Guest List
   const fetchData = async () => {
     try {
       const [eventRes, guestsRes] = await Promise.all([
-        axios.get(`/events/${id}`), // Correct
-        axios.get(`/guests/event/${id}`), // ✅ Fix here
+        axios.get(`/events/${id}`),
+        axios.get(`/guests/event/${id}`),
       ]);
       setEvent(eventRes.data);
       setGuests(guestsRes.data);
@@ -51,7 +47,6 @@ export default function EventDetails() {
     fetchData();
   }, [id]);
 
-  // ✅ Formik Setup
   const formik = useFormik({
     initialValues: {
       name: "",
@@ -65,10 +60,10 @@ export default function EventDetails() {
     onSubmit: async (values) => {
       try {
         if (isEditMode) {
-          await axios.put(`/guests/${editGuestId}`, values); // ✅ this is okay
+          await axios.put(`/guests/${editGuestId}`, values);
           message.success("Guest updated successfully");
         } else {
-          await axios.post(`/guests/event/${id}`, values); // ✅ FIX HERE
+          await axios.post(`/guests/event/${id}`, values);
           message.success("Guest added successfully");
         }
         fetchData();
@@ -80,7 +75,6 @@ export default function EventDetails() {
     },
   });
 
-  // ✅ Edit Guest
   const handleEdit = (guest) => {
     setEditMode(true);
     setEditGuestId(guest._id);
@@ -92,7 +86,6 @@ export default function EventDetails() {
     setGuestModalOpen(true);
   };
 
-  // ✅ Delete Guest
   const handleDelete = async (guestId) => {
     try {
       await axios.delete(`/guests/${guestId}`);
@@ -104,7 +97,6 @@ export default function EventDetails() {
     }
   };
 
-  // ✅ Close modal and cleanup
   const closeModal = () => {
     setGuestModalOpen(false);
     setEditMode(false);
@@ -112,7 +104,6 @@ export default function EventDetails() {
     formik.resetForm();
   };
 
-  // ✅ Guest Table Columns
   const guestColumns = [
     {
       title: "Guest ID",
@@ -133,17 +124,20 @@ export default function EventDetails() {
       title: "Email",
       dataIndex: "email",
       key: "email",
+      render: (text) => (
+        <div className="break-words whitespace-normal">{text}</div>
+      ),
     },
     {
       title: "Invitation Link",
-      dataIndex: "guestId", // guestId
+      dataIndex: "guestId",
       key: "invitation",
       render: (guestId) => (
         <a
           href={`https://wedlink-ui.vercel.app/invitation/${guestId}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-600 underline"
+          className="text-blue-600 underline break-words whitespace-normal"
         >
           View Invitation
         </a>
@@ -194,8 +188,8 @@ export default function EventDetails() {
   ];
 
   return (
-    <div className="p-4 sm:p-6">
-      {/* ✅ Back Button */}
+    <div className="px-2 sm:px-4 max-w-[100vw] overflow-x-auto">
+      {/* Back Button */}
       <button
         onClick={() => navigate("/dashboard")}
         className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition"
@@ -208,27 +202,57 @@ export default function EventDetails() {
         Event Details
       </h2>
 
-      {/* ✅ Event Info */}
-      <Descriptions bordered column={1} size="middle" className="mb-6">
-        <Descriptions.Item label="Event Name">{event.name}</Descriptions.Item>
-        <Descriptions.Item label="Groom Name">
-          {event.groomName || "N/A"}
-        </Descriptions.Item>
-        <Descriptions.Item label="Bride Name">
-          {event.brideName || "N/A"}
-        </Descriptions.Item>
-        <Descriptions.Item label="Location">{event.location}</Descriptions.Item>
-        <Descriptions.Item label="Date">{event.date}</Descriptions.Item>
-        <Descriptions.Item label="Description">
-          {event.description}
-        </Descriptions.Item>
-        <Descriptions.Item label="Created By">
-          {event.adminId?.email || "N/A"} ({event.adminId?.role || "N/A"})
-        </Descriptions.Item>
-      </Descriptions>
+      {/* Event Descriptions */}
+      <div className="w-full overflow-auto mb-6">
+        <Descriptions
+          bordered
+          column={1}
+          size="middle"
+          className="min-w-[320px] sm:min-w-full"
+        >
+          <Descriptions.Item
+            label="Event Name"
+            style={{ wordBreak: "break-word" }}
+          >
+            {event.name}
+          </Descriptions.Item>
+          <Descriptions.Item
+            label="Groom Name"
+            style={{ wordBreak: "break-word" }}
+          >
+            {event.groomName || "N/A"}
+          </Descriptions.Item>
+          <Descriptions.Item
+            label="Bride Name"
+            style={{ wordBreak: "break-word" }}
+          >
+            {event.brideName || "N/A"}
+          </Descriptions.Item>
+          <Descriptions.Item
+            label="Location"
+            style={{ wordBreak: "break-word" }}
+          >
+            {event.location}
+          </Descriptions.Item>
+          <Descriptions.Item label="Date" style={{ wordBreak: "break-word" }}>
+            {event.date}
+          </Descriptions.Item>
+          <Descriptions.Item
+            label="Description"
+            style={{ wordBreak: "break-word" }}
+          >
+            {event.description}
+          </Descriptions.Item>
+          <Descriptions.Item
+            label="Created By"
+            style={{ wordBreak: "break-word" }}
+          >
+            {event.adminId?.email || "N/A"} ({event.adminId?.role || "N/A"})
+          </Descriptions.Item>
+        </Descriptions>
+      </div>
 
-      {/* ✅ Guest Section */}
-
+      {/* Guest Controls */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
         <h3 className="text-lg font-bold">Guest List</h3>
         <div className="flex gap-2">
@@ -247,18 +271,20 @@ export default function EventDetails() {
         </div>
       </div>
 
-      {/* ✅ Table */}
-      <Table
-        dataSource={guests}
-        columns={guestColumns}
-        rowKey="_id"
-        pagination={{ pageSize: 5 }}
-        size="middle"
-        bordered
-        className="w-full"
-      />
+      {/* Guest Table */}
+      <div className="overflow-x-auto w-full">
+        <Table
+          dataSource={guests}
+          columns={guestColumns}
+          rowKey="_id"
+          pagination={{ pageSize: 5 }}
+          size="middle"
+          bordered
+          scroll={{ x: true }}
+        />
+      </div>
 
-      {/* ✅ Add/Edit Guest Modal */}
+      {/* Guest Modal */}
       <Modal
         title={isEditMode ? "Edit Guest" : "Add Guest"}
         open={isGuestModalOpen}
@@ -299,6 +325,7 @@ export default function EventDetails() {
         </Form>
       </Modal>
 
+      {/* Bulk Upload Modal */}
       <Modal
         title="Bulk Guest Entry (Upload Excel)"
         open={isBulkModalOpen}
@@ -309,7 +336,6 @@ export default function EventDetails() {
           layout="vertical"
           onFinish={async (values) => {
             const file = values.file?.[0]?.originFileObj;
-
             if (!file) {
               message.error("Please upload a valid Excel file.");
               return;
@@ -325,7 +351,7 @@ export default function EventDetails() {
               });
               message.success("Guests uploaded successfully");
               setBulkModalOpen(false);
-              fetchData(); // Refresh table
+              fetchData();
             } catch (err) {
               console.error("Bulk upload error:", err);
               message.error("Failed to upload guests");
@@ -341,11 +367,7 @@ export default function EventDetails() {
             getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
             rules={[{ required: true, message: "Please upload an Excel file" }]}
           >
-            <Upload
-              accept=".xlsx,.xls"
-              beforeUpload={() => false} // prevents auto-upload
-              maxCount={1}
-            >
+            <Upload accept=".xlsx,.xls" beforeUpload={() => false} maxCount={1}>
               <Button>Select File</Button>
             </Upload>
           </Form.Item>
