@@ -5,6 +5,7 @@ import {
   Form,
   Input,
   DatePicker,
+  Select,
   Table,
   Popconfirm,
   message,
@@ -15,6 +16,10 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import dayjs from "dayjs";
 import React from "react";
+import Template1 from "../components/templates/Template1";
+import Template2 from "../components/templates/Template2";
+
+const { Option } = Select;
 
 export default function Dashboard() {
   const [events, setEvents] = useState([]);
@@ -43,6 +48,7 @@ export default function Dashboard() {
       location: "",
       date: null,
       description: "",
+      template: "template1",
     },
     validationSchema: Yup.object({
       title: Yup.string().required("Event name is required"),
@@ -50,6 +56,7 @@ export default function Dashboard() {
       brideName: Yup.string().required("Bride name is required"),
       location: Yup.string().required("Location is required"),
       date: Yup.date().required("Date is required"),
+      template: Yup.string().required("Template is required"),
     }),
     onSubmit: async (values) => {
       if (eventNameExists) {
@@ -64,6 +71,7 @@ export default function Dashboard() {
         location: values.location,
         date: values.date,
         description: values.description,
+        template: values.template,
       };
 
       try {
@@ -72,13 +80,13 @@ export default function Dashboard() {
         setIsModalOpen(false);
         formik.resetForm();
         setEventNameExists(false);
+        message.success("Event created!");
       } catch (err) {
         message.error("Failed to add event");
       }
     },
   });
 
-  // ✅ Debounced event name check
   useEffect(() => {
     const name = formik.values.title.trim();
     if (name.length < 3) {
@@ -96,7 +104,7 @@ export default function Dashboard() {
         console.error("Event name check failed:", err);
         setEventNameExists(false);
       }
-    }, 500); // Delay to prevent rapid calls
+    }, 500);
 
     return () => clearTimeout(delay);
   }, [formik.values.title]);
@@ -109,6 +117,21 @@ export default function Dashboard() {
     } catch (err) {
       message.error("Failed to delete");
     }
+  };
+
+  const renderTemplatePreview = () => {
+    const props = {
+      brideName: formik.values.brideName || "Bride",
+      groomName: formik.values.groomName || "Groom",
+      location: formik.values.location || "Venue",
+      date: formik.values.date
+        ? dayjs(formik.values.date).format("MMMM D, YYYY")
+        : "Date",
+    };
+
+    if (formik.values.template === "template1") return <Template1 {...props} />;
+    if (formik.values.template === "template2") return <Template2 {...props} />;
+    return null;
   };
 
   const columns = [
@@ -125,6 +148,11 @@ export default function Dashboard() {
           {text}
         </Link>
       ),
+    },
+    {
+      title: "Template",
+      dataIndex: "template",
+      render: (tpl) => <span className="capitalize">{tpl}</span>,
     },
     {
       title: "Actions",
@@ -205,11 +233,7 @@ export default function Dashboard() {
             />
           </Form.Item>
 
-          <Form.Item
-            label="Groom Name"
-            validateStatus={formik.errors.groomName && "error"}
-            help={formik.errors.groomName}
-          >
+          <Form.Item label="Groom Name">
             <Input
               name="groomName"
               value={formik.values.groomName}
@@ -217,11 +241,7 @@ export default function Dashboard() {
             />
           </Form.Item>
 
-          <Form.Item
-            label="Bride Name"
-            validateStatus={formik.errors.brideName && "error"}
-            help={formik.errors.brideName}
-          >
+          <Form.Item label="Bride Name">
             <Input
               name="brideName"
               value={formik.values.brideName}
@@ -229,11 +249,7 @@ export default function Dashboard() {
             />
           </Form.Item>
 
-          <Form.Item
-            label="Location"
-            validateStatus={formik.errors.location && "error"}
-            help={formik.errors.location}
-          >
+          <Form.Item label="Location">
             <Input
               name="location"
               value={formik.values.location}
@@ -241,11 +257,7 @@ export default function Dashboard() {
             />
           </Form.Item>
 
-          <Form.Item
-            label="Date"
-            validateStatus={formik.errors.date && "error"}
-            help={formik.errors.date}
-          >
+          <Form.Item label="Date">
             <DatePicker
               style={{ width: "100%" }}
               value={formik.values.date ? dayjs(formik.values.date) : null}
@@ -260,6 +272,23 @@ export default function Dashboard() {
               onChange={formik.handleChange}
             />
           </Form.Item>
+
+          <Form.Item label="Template">
+            <Select
+              name="template"
+              value={formik.values.template}
+              onChange={(value) => formik.setFieldValue("template", value)}
+            >
+              <Option value="template1">Template 1</Option>
+              <Option value="template2">Template 2</Option>
+            </Select>
+          </Form.Item>
+
+          {/* Live Preview */}
+          <div className="my-4 border p-3 bg-gray-50 rounded-md">
+            <h3 className="font-semibold mb-2">Preview</h3>
+            {renderTemplatePreview()}
+          </div>
         </Form>
       </Modal>
     </div>

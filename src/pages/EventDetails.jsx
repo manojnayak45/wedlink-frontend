@@ -135,6 +135,21 @@ export default function EventDetails() {
       key: "email",
     },
     {
+      title: "Invitation Link",
+      dataIndex: "guestId", // guestId
+      key: "invitation",
+      render: (guestId) => (
+        <a
+          href={`http://localhost:5174/invitation/${guestId}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 underline"
+        >
+          View
+        </a>
+      ),
+    },
+    {
       title: "Actions",
       key: "actions",
       render: (_, record) => {
