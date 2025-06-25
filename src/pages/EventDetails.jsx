@@ -198,9 +198,15 @@ export default function EventDetails() {
         Back to Dashboard
       </button>
 
-      <h2 className="text-xl sm:text-2xl font-semibold mb-4 mt-8">
-        Event Details
-      </h2>
+      <div className="flex justify-between items-center mt-8 mb-4">
+        <h2 className="text-xl sm:text-2xl font-semibold">Event Details</h2>
+        <Button
+          type="primary"
+          onClick={() => navigate(`/events/edit/${event._id}`)}
+        >
+          Edit Event
+        </Button>
+      </div>
 
       {/* Event Descriptions */}
       <div className="w-full overflow-auto mb-6">
@@ -277,7 +283,7 @@ export default function EventDetails() {
           dataSource={guests}
           columns={guestColumns}
           rowKey="_id"
-          pagination={{ pageSize: 5 }}
+          pagination={{ pageSize: 10 }}
           size="middle"
           bordered
           scroll={{ x: true }}

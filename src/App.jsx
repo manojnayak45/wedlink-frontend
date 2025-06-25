@@ -14,6 +14,7 @@ import Dashboard from "./pages/Dashboard";
 import AdminPanel from "./pages/AdminPanel";
 import EditEvent from "./pages/EditEvent";
 import EventDetails from "./pages/EventDetails";
+import AddEventPage from "./pages/AddEventPage";
 
 // 🛡️ Wrapper for checking auth before rendering nested routes
 function ProtectedLayout() {
@@ -48,6 +49,7 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin-panel" element={<AdminPanel />} />
+            <Route path="/add-event" element={<AddEventPage />} />
             <Route path="/events/edit/:id" element={<EditEvent />} />
             <Route path="/events/:id" element={<EventDetails />} />
           </Route>
